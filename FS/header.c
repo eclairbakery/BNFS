@@ -1,5 +1,3 @@
-#pragma once
-
 #include "header.h"
 
 void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes) {

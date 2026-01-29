@@ -1,5 +1,3 @@
-#pragma once
-
 #include "utils.h"
 
 // Sprawdza czy system jest little endian

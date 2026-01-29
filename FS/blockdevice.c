@@ -1,5 +1,3 @@
-#pragma once
-
 #include "blockdevice.h"
 
 int block_read(BlockDevice *dev, uint64_t block, void *buffer) {

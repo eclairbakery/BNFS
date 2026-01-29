@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef enum { DEV_RAM, DEV_FILE } DeviceType;
 

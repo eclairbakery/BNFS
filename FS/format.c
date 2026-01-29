@@ -1,5 +1,3 @@
-#pragma once
-
 #include "format.h"
 
 uint64_t calculate_bitmap_blocks(uint64_t totalSizeBytes, uint32_t blockSize,
@@ -63,4 +61,6 @@ int fs_format(BlockDevice *dev) {
   for (size_t b = 1; b < bitmapBlocks + 256; b++) {
     block_write(dev, b, (uint8_t *){0});
   }
+
+  return 0;
 }
