@@ -24,7 +24,13 @@ uint64_t calculate_bitmap_blocks(uint64_t totalSizeBytes, uint32_t blockSize,
 }
 
 int fs_format(BlockDevice *dev) {
-  uint64_t totalSizeBytes = dev->block_count * dev->block_size;
+  if (dev->block_count < 8192)
+    return -1;
+
+  if (dev->readonly)
+    return -2;
+
+    uint64_t totalSizeBytes = dev->block_count * dev->block_size;
   uint64_t bitmapBlocks =
       calculate_bitmap_blocks(totalSizeBytes, dev->block_size, 257);
   //uint64_t bitmapSizeBytes = bitmapBlocks * dev->block_size;

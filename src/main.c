@@ -1,7 +1,8 @@
 #include "simplefs.h"
 #include <stdio.h>
 
-int main(void) {
+int main(void)
+{
   printf("Hello World!");
 
   BlockDevice dev = {.type = DEV_FILE,

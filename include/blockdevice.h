@@ -7,9 +7,14 @@
 #include <unistd.h>
 #include <string.h>
 
-typedef enum { DEV_RAM, DEV_FILE } DeviceType;
+typedef enum
+{
+  DEV_RAM,
+  DEV_FILE
+} DeviceType;
 
-typedef struct BlockDevice {
+typedef struct
+{
 
   const char *name;
 
@@ -20,12 +25,15 @@ typedef struct BlockDevice {
 
   DeviceType type;
 
-  union {
-    struct {
+  union
+  {
+    struct
+    {
       uint8_t *data; // malloc pointer
     } ram;
 
-    struct {
+    struct
+    {
       FILE *fp; // fopen handle
     } file;
   };

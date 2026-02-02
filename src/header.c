@@ -1,6 +1,7 @@
 #include "header.h"
 
-void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes) {
+void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
+{
   uint8_t *ptr = out_bytes;
 
   // Kopiowanie prostych pól bez endian (uint8_t i tablice)
@@ -76,7 +77,8 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes) {
   ptr += 452;
 }
 
-void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header) {
+void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
+{
   const uint8_t *ptr = bytes;
 
   memcpy(out_header->jumpOp, ptr, 4);
