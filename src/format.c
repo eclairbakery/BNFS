@@ -27,7 +27,7 @@ int fs_format(BlockDevice *dev) {
   uint64_t totalSizeBytes = dev->block_count * dev->block_size;
   uint64_t bitmapBlocks =
       calculate_bitmap_blocks(totalSizeBytes, dev->block_size, 257);
-  uint64_t bitmapSizeBytes = bitmapBlocks * dev->block_size;
+  //uint64_t bitmapSizeBytes = bitmapBlocks * dev->block_size;
 
   fs_header header = {.jumpOp = {0x00, 0x00, 0x00, 0x00},
                       .magic = {'S', 'I', 'M', 'P', 'L', 'E', 'F', 'S'},
