@@ -3,7 +3,8 @@
 #include "utils.h"
 
 #pragma pack(push, 1)
-typedef struct fs_header {
+typedef struct
+{
   uint8_t jumpOp[4]; // Instruction to jump to boot code
   uint8_t magic[8];  // "SIMPLEFS"
   uint8_t pad0;

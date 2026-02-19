@@ -1,3 +1,5 @@
 *.img
 build/
+.nvim
+.idea
 .vscode
