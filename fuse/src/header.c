@@ -1,4 +1,4 @@
-#include "header.h"
+#include "../include/header.h"
 
 void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
 {
@@ -9,7 +9,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
   ptr += 4;
   memcpy(ptr, header->magic, 8);
   ptr += 8;
-  *ptr++ = header->pad0;
+  // *ptr++ = header->pad0;
 
   // version - uint16_t
   memcpy(ptr, &header->version, 2);
@@ -17,7 +17,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 2);
   ptr += 2;
 
-  *ptr++ = header->pad1;
+  // *ptr++ = header->pad1;
 
   // blockSize - uint16_t
   memcpy(ptr, &header->blockSize, 2);
@@ -25,7 +25,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 2);
   ptr += 2;
 
-  *ptr++ = header->pad2;
+  // *ptr++ = header->pad2;
 
   // blockCount - uint64_t
   memcpy(ptr, &header->blockCount, 8);
@@ -33,7 +33,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 8);
   ptr += 8;
 
-  *ptr++ = header->pad3;
+  // *ptr++ = header->pad3;
 
   // freeBlockCount - uint64_t
   memcpy(ptr, &header->freeBlockCount, 8);
@@ -41,12 +41,15 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 8);
   ptr += 8;
 
-  *ptr++ = header->pad4;
+  // *ptr++ = header->pad4;
 
-  // bitmapOffset - uint8_t
-  *ptr++ = header->bitmapOffset;
+  // bitmapOffset - uint64_t
+  memcpy(ptr, &header->bitmapOffset, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
 
-  *ptr++ = header->pad5;
+  // *ptr++ = header->pad5;
 
   // bitmapSize - uint64_t
   memcpy(ptr, &header->bitmapSize, 8);
@@ -54,7 +57,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 8);
   ptr += 8;
 
-  *ptr++ = header->pad6;
+  // *ptr++ = header->pad6;
 
   // rootDirOffset - uint64_t
   memcpy(ptr, &header->rootDirOffset, 8);
@@ -62,7 +65,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 8);
   ptr += 8;
 
-  *ptr++ = header->pad7;
+  // *ptr++ = header->pad7;
 
   // maxFilenameLength - uint16_t
   memcpy(ptr, &header->maxFilenameLength, 2);
@@ -70,7 +73,7 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
     reverse_bytes(ptr, 2);
   ptr += 2;
 
-  *ptr++ = header->pad8;
+  // *ptr++ = header->pad8;
 
   // bootCode - 452 bajty
   memcpy(ptr, header->bootCode, 452);
@@ -85,60 +88,63 @@ void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
   ptr += 4;
   memcpy(out_header->magic, ptr, 8);
   ptr += 8;
-  out_header->pad0 = *ptr++;
+  // out_header->pad0 = *ptr++;
 
   memcpy(&out_header->version, ptr, 2);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->version, 2);
   ptr += 2;
 
-  out_header->pad1 = *ptr++;
+  // out_header->pad1 = *ptr++;
 
   memcpy(&out_header->blockSize, ptr, 2);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->blockSize, 2);
   ptr += 2;
 
-  out_header->pad2 = *ptr++;
+  // out_header->pad2 = *ptr++;
 
   memcpy(&out_header->blockCount, ptr, 8);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->blockCount, 8);
   ptr += 8;
 
-  out_header->pad3 = *ptr++;
+  // out_header->pad3 = *ptr++;
 
   memcpy(&out_header->freeBlockCount, ptr, 8);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->freeBlockCount, 8);
   ptr += 8;
 
-  out_header->pad4 = *ptr++;
+  // out_header->pad4 = *ptr++;
 
-  out_header->bitmapOffset = *ptr++;
+  memcpy(&out_header->bitmapOffset, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->bitmapOffset, 8);
+  ptr += 8;
 
-  out_header->pad5 = *ptr++;
+  // out_header->pad5 = *ptr++;
 
   memcpy(&out_header->bitmapSize, ptr, 8);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->bitmapSize, 8);
   ptr += 8;
 
-  out_header->pad6 = *ptr++;
+  // out_header->pad6 = *ptr++;
 
   memcpy(&out_header->rootDirOffset, ptr, 8);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->rootDirOffset, 8);
   ptr += 8;
 
-  out_header->pad7 = *ptr++;
+  // out_header->pad7 = *ptr++;
 
   memcpy(&out_header->maxFilenameLength, ptr, 2);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->maxFilenameLength, 2);
   ptr += 2;
 
-  out_header->pad8 = *ptr++;
+  // out_header->pad8 = *ptr++;
 
   memcpy(out_header->bootCode, ptr, 452);
   ptr += 452;

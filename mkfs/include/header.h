@@ -16,7 +16,7 @@ typedef struct
   uint8_t pad3;
   uint64_t freeBlockCount; // Number of free blocks in the filesystem
   uint8_t pad4;
-  uint8_t bitmapOffset; // Offset of the bitmap in blocks
+  uint64_t bitmapOffset; // Offset of the bitmap in blocks
   uint8_t pad5;
   uint64_t bitmapSize; // Size of the bitmap in blocks
   uint8_t pad6;
@@ -24,7 +24,7 @@ typedef struct
   uint8_t pad7;
   uint16_t maxFilenameLength; // Maximum length of a filename
   uint8_t pad8;
-  uint8_t bootCode[450];
+  uint8_t bootCode[443];
   uint8_t endMarker[2]; // 0x55AA
 } fs_header;
 #pragma pack(pop)

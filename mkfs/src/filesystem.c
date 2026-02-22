@@ -1,4 +1,4 @@
-#include "filesystem.h"
+#include "../include/filesystem.h"
 
 uint64_t calculate_bitmap_blocks(uint64_t totalSizeBytes, uint32_t blockSize,
                                  uint64_t systemBlocksWithoutBitmap)
@@ -49,11 +49,11 @@ int fs_format(BlockDevice *dev)
                         .pad3 = 0x00,
                         .freeBlockCount = dev->block_count - 1 - bitmapBlocks,
                         .pad4 = 0x00,
-                        .bitmapOffset = 1,
+                        .bitmapOffset = 257,
                         .pad5 = 0x00,
                         .bitmapSize = bitmapBlocks,
                         .pad6 = 0x00,
-                        .rootDirOffset = 1 + bitmapBlocks,
+                        .rootDirOffset = 257 + bitmapBlocks,
                         .pad7 = 0x00,
                         .maxFilenameLength = 255,
                         .pad8 = 0x00,
@@ -67,37 +67,14 @@ int fs_format(BlockDevice *dev)
     fs_header_to_bytes(&header, headerBytes);
     block_write(dev, 0, headerBytes);
 
-    for (size_t b = 1; b < bitmapBlocks + 256; b++)
+    uint8_t *zero_block = (uint8_t *)calloc(1, 512);
+
+    for (size_t b = 257; b < bitmapBlocks + 256; b++)
     {
-        block_write(dev, b, (uint8_t *){0});
+        block_write(dev, b, zero_block);
     }
+
+    free(zero_block);
 
     return 0;
-}
-
-uint8_t *fs_verify(BlockDevice *dev)
-{
-    uint8_t *header = (uint8_t *)malloc(512);
-    block_read(dev, 0, header);
-    header += 4; // Skip jump opcode
-    if(memcmp(header, "SIMPLEFS", 8) != 0)
-    {
-        free(header - 4);
-        return NULL;
-    }
-    else
-    {
-        return header - 4;
-    }
-}
-
-int fs_mount(BlockDevice *dev, const char *uniqueName)
-{
-    uint8_t *headerBytes = fs_verify(dev);
-    if (headerBytes == NULL)
-        return -1;
-    fs_header header;
-    fs_header_from_bytes(&header, headerBytes);
-    free(headerBytes);
-    
 }

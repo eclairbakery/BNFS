@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "../include/utils.h"
 
 // Sprawdza czy system jest little endian
 bool is_little_endian()
