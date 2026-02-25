@@ -3,29 +3,28 @@
 #include "utils.h"
 
 #pragma pack(push, 1)
-typedef struct
-{
-  uint8_t jumpOp[4]; // Instruction to jump to boot code
-  uint8_t magic[8];  // "SIMPLEFS"
-  uint8_t pad0;
-  uint16_t version; // Version of the filesystem
-  uint8_t pad1;
-  uint16_t blockSize; // Size of each block in bytes
-  uint8_t pad2;
-  uint64_t blockCount; // Number of blocks in the filesystem
-  uint8_t pad3;
-  uint64_t freeBlockCount; // Number of free blocks in the filesystem
-  uint8_t pad4;
-  uint64_t bitmapOffset; // Offset of the bitmap in blocks
-  uint8_t pad5;
-  uint64_t bitmapSize; // Size of the bitmap in blocks
-  uint8_t pad6;
-  uint64_t rootDirOffset; // Offset of the root directory in blocks
-  uint8_t pad7;
-  uint16_t maxFilenameLength; // Maximum length of a filename
-  uint8_t pad8;
-  uint8_t bootCode[443];
-  uint8_t endMarker[2]; // 0x55AA
+typedef struct {
+  uint8_t magic[8];           // "SIMPLEFS"
+  uint16_t version;           // Version of the filesystem
+  uint16_t blockSize;         // Size of each block in bytes
+  uint64_t blockCount;        // Number of blocks in the filesystem
+  uint64_t freeBlockCount;    // Number of free blocks in the filesystem
+  uint64_t bitmapOffset;      // Offset of the bitmap in blocks
+  uint64_t bitmapSize;        // Size of the bitmap in blocks
+  uint64_t rootDirOffset;     // Offset of the root directory in blocks
+  uint32_t maxFilenameLength; // Maximum length of a filename
+  uint8_t uuid[16];           // unikalny identyfikator
+  uint32_t sbChecksum;        // CRC32 superblocka
+  uint32_t flags;             // np. dirty, readonly, journaling
+  uint64_t inodeCount;
+  uint64_t freeInodeCount;
+  uint64_t inodeTableOffset;
+  uint64_t inodeTableSize;
+  uint64_t createdTime;
+  uint64_t lastMountTime;
+  uint32_t mountCount;
+  uint32_t maxPathLength;
+  uint8_t reserved[3960];
 } fs_header;
 #pragma pack(pop)
 

@@ -4,7 +4,6 @@
 
 #pragma pack(push, 1)
 typedef struct {
-  uint8_t jumpOp[4];          // Instruction to jump to boot code
   uint8_t magic[8];           // "SIMPLEFS"
   uint16_t version;           // Version of the filesystem
   uint16_t blockSize;         // Size of each block in bytes
@@ -25,9 +24,7 @@ typedef struct {
   uint64_t lastMountTime;
   uint32_t mountCount;
   uint32_t maxPathLength;
-  uint8_t reserved[256];
-  uint8_t bootCode[3698];
-  uint8_t endMarker[2]; // 0x55AA
+  uint8_t reserved[3960];
 } fs_header;
 #pragma pack(pop)
 

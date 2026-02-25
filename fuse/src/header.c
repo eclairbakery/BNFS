@@ -5,8 +5,6 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
   uint8_t *ptr = out_bytes;
 
   // Kopiowanie prostych pól bez endian (uint8_t i tablice)
-  memcpy(ptr, header->jumpOp, 4);
-  ptr += 4;
   memcpy(ptr, header->magic, 8);
   ptr += 8;
   // *ptr++ = header->pad0;
@@ -67,25 +65,72 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
 
   // *ptr++ = header->pad7;
 
-  // maxFilenameLength - uint16_t
-  memcpy(ptr, &header->maxFilenameLength, 2);
+  // maxFilenameLength - uint32_t
+  memcpy(ptr, &header->maxFilenameLength, 4);
   if (!is_little_endian())
-    reverse_bytes(ptr, 2);
-  ptr += 2;
+    reverse_bytes(ptr, 4);
+  ptr += 4;
 
   // *ptr++ = header->pad8;
 
-  // bootCode - 452 bajty
-  memcpy(ptr, header->bootCode, 452);
-  ptr += 452;
+  memcpy(ptr, header->uuid, 16);
+  ptr += 16;
+
+  memcpy(ptr, &header->sbChecksum, 4);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 4);
+  ptr += 4;
+
+  memcpy(ptr, &header->flags, 4);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 4);
+  ptr += 4;
+
+  memcpy(ptr, &header->inodeCount, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &header->freeInodeCount, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &header->inodeTableOffset, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &header->inodeTableSize, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &header->createdTime, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &header->lastMountTime, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &header->mountCount, 4);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 4);
+  ptr += 4;
+
+  memcpy(ptr, &header->maxPathLength, 4);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 4);
+  ptr += 4;
 }
 
 void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
 {
   const uint8_t *ptr = bytes;
 
-  memcpy(out_header->jumpOp, ptr, 4);
-  ptr += 4;
   memcpy(out_header->magic, ptr, 8);
   ptr += 8;
   // out_header->pad0 = *ptr++;
@@ -139,13 +184,63 @@ void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
 
   // out_header->pad7 = *ptr++;
 
-  memcpy(&out_header->maxFilenameLength, ptr, 2);
+  memcpy(&out_header->maxFilenameLength, ptr, 4);
   if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_header->maxFilenameLength, 2);
-  ptr += 2;
+    reverse_bytes((uint8_t *)&out_header->maxFilenameLength, 4);
+  ptr += 4;
 
   // out_header->pad8 = *ptr++;
 
-  memcpy(out_header->bootCode, ptr, 452);
-  ptr += 452;
+  memcpy(out_header->uuid, ptr, 16);
+  ptr += 16;
+
+  memcpy(&out_header->sbChecksum, ptr, 4);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->sbChecksum, 4);
+  ptr += 4;
+
+  memcpy(&out_header->flags, ptr, 4);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->flags, 4);
+  ptr += 4;
+
+  memcpy(&out_header->inodeCount, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->inodeCount, 8);
+  ptr += 8;
+
+  memcpy(&out_header->freeInodeCount, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->freeInodeCount, 8);
+  ptr += 8;
+
+  memcpy(&out_header->inodeTableOffset, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->inodeTableOffset, 8);
+  ptr += 8;
+
+  memcpy(&out_header->inodeTableSize, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->inodeTableSize, 8);
+  ptr += 8;
+
+  memcpy(&out_header->createdTime, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->createdTime, 8);
+  ptr += 8;
+
+  memcpy(&out_header->lastMountTime, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->lastMountTime, 8);
+  ptr += 8;
+
+  memcpy(&out_header->mountCount, ptr, 4);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->mountCount, 4);
+  ptr += 4;
+
+  memcpy(&out_header->maxPathLength, ptr, 4);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->maxPathLength, 4);
+  ptr += 4;
 }
