@@ -1,8 +1,10 @@
 #include "blockdevice.h"
 #include "header.h"
+#include "crc32.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct
 {

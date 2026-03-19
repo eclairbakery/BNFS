@@ -14,6 +14,8 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
+  crc32_init();
+
   block_info_t info;
   get_block_info(argv[1], &info);
 
@@ -21,7 +23,7 @@ int main(int argc, char *argv[]) {
                      .block_size = info.block_size,
                      .block_count = info.block_count,
                      .readonly = false,
-                     .file.fp = fopen("disk.img", "rb+")};
+                     .file.fp = fopen(argv[1], "rb+")};
 
   fs_format(&dev);
 

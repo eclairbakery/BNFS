@@ -1,7 +1,6 @@
 #include "../include/header.h"
 
-void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
-{
+void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes) {
   uint8_t *ptr = out_bytes;
 
   // Kopiowanie prostych pól bez endian (uint8_t i tablice)
@@ -73,14 +72,6 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
 
   // *ptr++ = header->pad8;
 
-  memcpy(ptr, header->uuid, 16);
-  ptr += 16;
-
-  memcpy(ptr, &header->sbChecksum, 4);
-  if (!is_little_endian())
-    reverse_bytes(ptr, 4);
-  ptr += 4;
-
   memcpy(ptr, &header->flags, 4);
   if (!is_little_endian())
     reverse_bytes(ptr, 4);
@@ -125,10 +116,18 @@ void fs_header_to_bytes(const fs_header *header, uint8_t *out_bytes)
   if (!is_little_endian())
     reverse_bytes(ptr, 4);
   ptr += 4;
+
+  // reserved
+  memset(ptr, 0, 3976);
+  ptr += 3976;
+
+  memcpy(ptr, &header->sbChecksum, 4);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 4);
+  ptr += 4;
 }
 
-void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
-{
+void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header) {
   const uint8_t *ptr = bytes;
 
   memcpy(out_header->magic, ptr, 8);
@@ -191,14 +190,6 @@ void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
 
   // out_header->pad8 = *ptr++;
 
-  memcpy(out_header->uuid, ptr, 16);
-  ptr += 16;
-
-  memcpy(&out_header->sbChecksum, ptr, 4);
-  if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_header->sbChecksum, 4);
-  ptr += 4;
-
   memcpy(&out_header->flags, ptr, 4);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->flags, 4);
@@ -242,5 +233,12 @@ void bytes_to_fs_header(const uint8_t *bytes, fs_header *out_header)
   memcpy(&out_header->maxPathLength, ptr, 4);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_header->maxPathLength, 4);
+  ptr += 4;
+
+  ptr += 3976;
+
+  memcpy(&out_header->sbChecksum, ptr, 4);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_header->sbChecksum, 4);
   ptr += 4;
 }

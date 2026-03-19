@@ -13,7 +13,6 @@ typedef struct {
   uint64_t bitmapSize;        // Size of the bitmap in blocks
   uint64_t rootDirOffset;     // Offset of the root directory in blocks
   uint32_t maxFilenameLength; // Maximum length of a filename
-  uint8_t uuid[16];           // unikalny identyfikator
   uint32_t sbChecksum;        // CRC32 superblocka
   uint32_t flags;             // np. dirty, readonly, journaling
   uint64_t inodeCount;
@@ -24,7 +23,7 @@ typedef struct {
   uint64_t lastMountTime;
   uint32_t mountCount;
   uint32_t maxPathLength;
-  uint8_t reserved[3960];
+  uint8_t reserved[3976];
 } fs_header;
 #pragma pack(pop)
 
