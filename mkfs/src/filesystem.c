@@ -30,17 +30,17 @@ int fs_format(BlockDevice *dev) {
   if (dev->readonly)
     return -2;
 
-  uint64_t totalSizeBytes = dev->block_count * dev->block_size;
+  uint64_t totalSizeBytes = dev->block_count * 4096;
   uint64_t bitmapBlocks =
-      calculate_bitmap_blocks(totalSizeBytes, dev->block_size, 257);
-  uint64_t bitmapSizeBytes = bitmapBlocks * dev->block_size;
+      calculate_bitmap_blocks(totalSizeBytes, 4096, 1);
+  uint64_t bitmapSizeBytes = bitmapBlocks * 4096;
 
   uint64_t current_time = (uint64_t)time(NULL);
 
   fs_header header = {
       .magic = {'S', 'I', 'M', 'P', 'L', 'E', 'F', 'S'},
       .version = 0x0001,
-      .blockSize = dev->block_size,
+      .blockSize = 4096,
       .blockCount = dev->block_count,
       .freeBlockCount = dev->block_count - 1 - bitmapBlocks,
       .bitmapOffset = 1,
@@ -62,6 +62,8 @@ int fs_format(BlockDevice *dev) {
   fs_header_to_bytes(&header, headerBytes);
 
   block_write(dev, 0, headerBytes);
+
+  block_write(dev, dev->block_count - 1, headerBytes);
 
   uint8_t *zero_block = (uint8_t *)calloc(1, 4096);
 

@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
   get_block_info(argv[1], &info);
 
   BlockDevice dev = {.type = DEV_FILE,
-                     .block_size = info.block_size,
-                     .block_count = info.block_count,
+                     .block_size = 4096,
+                     .block_count = info.total_size / 4096,
                      .readonly = false,
                      .file.fp = fopen(argv[1], "rb+")};
 
