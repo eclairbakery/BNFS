@@ -1,0 +1,1 @@
+./build/simplefs /mnt/simple -f -o disk=disk.img -o allow_root

@@ -1,12 +1,15 @@
 #include "../include/direntry.h"
 
-void fs_entry_direntry(const direntry *entry, uint8_t *out_bytes) {
+void direntry_to_bytes(const direntry *entry, uint8_t *out_bytes) {
   uint8_t *ptr = out_bytes;
 
   // Kopiowanie prostych pól bez endian (uint8_t i tablice)
   memcpy(ptr, entry->magic, 4);
   ptr += 4;
 
+  ptr += 1;
+
+  memcpy(ptr, entry->name, 256);
   ptr += 256;
 
   memcpy(ptr, &entry->size, 8);
@@ -14,15 +17,15 @@ void fs_entry_direntry(const direntry *entry, uint8_t *out_bytes) {
     reverse_bytes(ptr, 8);
   ptr += 8;
 
-  memcpy(ptr, &entry->flags, 4);
+  memcpy(ptr, &entry->mode, 2);
   if (!is_little_endian())
-    reverse_bytes(ptr, 4);
-  ptr += 4;
+    reverse_bytes(ptr, 2);
+  ptr += 2;
 
-  memcpy(ptr, &entry->offset, 8);
+  memcpy(ptr, &entry->flags, 2);
   if (!is_little_endian())
-    reverse_bytes(ptr, 8);
-  ptr += 8;
+    reverse_bytes(ptr, 2);
+  ptr += 2;
 
   memcpy(ptr, &entry->meta_time, 8);
   if (!is_little_endian())
@@ -49,6 +52,11 @@ void fs_entry_direntry(const direntry *entry, uint8_t *out_bytes) {
     reverse_bytes(ptr, 2);
   ptr += 2;
 
+  memcpy(ptr, &entry->offset, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
   memcpy(ptr, entry->runlist, 724);
 }
 
@@ -68,15 +76,15 @@ void bytes_to_direntry(const uint8_t *bytes, direntry *out_entry) {
     reverse_bytes((uint8_t *)&out_entry->size, 8);
   ptr += 8;
 
-  memcpy(&out_entry->flags, ptr, 4);
+  memcpy(&out_entry->mode, ptr, 2);
   if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_entry->flags, 4);
-  ptr += 4;
+    reverse_bytes((uint8_t *)&out_entry->mode, 2);
+  ptr += 2;
 
-  memcpy(&out_entry->offset, ptr, 8);
+  memcpy(&out_entry->flags, ptr, 2);
   if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_entry->offset, 8);
-  ptr += 8;
+    reverse_bytes((uint8_t *)&out_entry->flags, 2);
+  ptr += 2;
 
   memcpy(&out_entry->meta_time, ptr, 8);
   if (!is_little_endian())
@@ -102,6 +110,11 @@ void bytes_to_direntry(const uint8_t *bytes, direntry *out_entry) {
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_entry->gid, 2);
   ptr += 2;
+
+  memcpy(&out_entry->offset, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_entry->offset, 8);
+  ptr += 8;
 
   memcpy(out_entry->runlist, ptr, 715);
 }

@@ -1,0 +1,1 @@
+./build/mkfs.simplefs disk.img

@@ -4,7 +4,7 @@
 
 #pragma pack(push, 1)
 typedef struct {
-  uint8_t magic[8];           // "SIMPLEFS"
+  uint8_t magic[8];           // "BNFSBNFS"
   uint16_t version;           // Version of the filesystem
   uint16_t blockSize;         // Size of each block in bytes
   uint64_t blockCount;        // Number of blocks in the filesystem
@@ -13,17 +13,17 @@ typedef struct {
   uint64_t bitmapSize;        // Size of the bitmap in blocks
   uint64_t rootDirOffset;     // Offset of the root directory in blocks
   uint32_t maxFilenameLength; // Maximum length of a filename
-  uint32_t sbChecksum;        // CRC32 superblocka
   uint32_t flags;             // np. dirty, readonly, journaling
-  uint64_t inodeCount;
-  uint64_t freeInodeCount;
-  uint64_t inodeTableOffset;
-  uint64_t inodeTableSize;
-  uint64_t createdTime;
-  uint64_t lastMountTime;
-  uint32_t mountCount;
-  uint32_t maxPathLength;
-  uint8_t reserved[3976];
+  uint64_t inodeCount;        
+  uint64_t freeInodeCount;    
+  uint64_t inodeTableOffset;  
+  uint64_t inodeTableSize;    
+  uint64_t createdTime;       
+  uint64_t lastMountTime;     
+  uint32_t mountCount;        
+  uint32_t maxPathLength;     
+  uint8_t reserved[3976];     
+  uint32_t sbChecksum;        // Superblock CRC32
 } fs_header;
 #pragma pack(pop)
 

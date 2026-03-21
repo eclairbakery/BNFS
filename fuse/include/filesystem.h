@@ -6,8 +6,10 @@
 #include "header.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
   BlockDevice dev;
@@ -32,3 +34,6 @@ int fs_readdir_iterator(SimpleFS *fs, char *path, direntry *entry);
 int fs_readdir(SimpleFS *fs, char *path, direntry **entries);
 int fs_read(SimpleFS *fs, char *path, uint64_t offset, uint64_t length,
             void *buf);
+int fs_create(SimpleFS *fs, char *path);
+int fs_write(SimpleFS *fs, char *path, uint64_t offset, uint64_t size,
+             char *buf);

@@ -31,14 +31,13 @@ int fs_format(BlockDevice *dev) {
     return -2;
 
   uint64_t totalSizeBytes = dev->block_count * 4096;
-  uint64_t bitmapBlocks =
-      calculate_bitmap_blocks(totalSizeBytes, 4096, 1);
+  uint64_t bitmapBlocks = calculate_bitmap_blocks(totalSizeBytes, 4096, 1);
   uint64_t bitmapSizeBytes = bitmapBlocks * 4096;
 
   uint64_t current_time = (uint64_t)time(NULL);
 
   fs_header header = {
-      .magic = {'S', 'I', 'M', 'P', 'L', 'E', 'F', 'S'},
+      .magic = {'B', 'N', 'F', 'S', 'B', 'N', 'F', 'S'},
       .version = 0x0001,
       .blockSize = 4096,
       .blockCount = dev->block_count,
@@ -69,6 +68,10 @@ int fs_format(BlockDevice *dev) {
 
   for (size_t b = 1; b < bitmapBlocks; b++) {
     block_write(dev, b, zero_block);
+  }
+
+  for (size_t b = 0; b < 1024; b++) {
+    block_write(dev, b + header.rootDirOffset, zero_block);
   }
 
   free(zero_block);

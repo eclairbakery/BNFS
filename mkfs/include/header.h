@@ -4,7 +4,7 @@
 
 #pragma pack(push, 1)
 typedef struct {
-  uint8_t magic[8];           // "SIMPLEFS"
+  uint8_t magic[8];           // "BNFSBNFS"
   uint16_t version;           // Version of the filesystem
   uint16_t blockSize;         // Size of each block in bytes
   uint64_t blockCount;        // Number of blocks in the filesystem
