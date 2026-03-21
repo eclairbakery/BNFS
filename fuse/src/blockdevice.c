@@ -11,13 +11,13 @@ int block_read(BlockDevice *dev, uint64_t block, void *buffer)
   {
 
   case DEV_RAM:
-    memcpy(buffer, dev->ram.data + offset, dev->4096);
+    memcpy(buffer, dev->ram.data + offset, 4096);
     return 0;
 
   case DEV_FILE:
     fseek(dev->file.fp, offset, SEEK_SET);
 
-    if (fread(buffer, 1, 4096, dev->file.fp) != dev->4096)
+    if (fread(buffer, 1, 4096, dev->file.fp) != 4096)
       return -1;
 
     return 0;

@@ -19,7 +19,12 @@ void fs_entry_direntry(const direntry *entry, uint8_t *out_bytes) {
     reverse_bytes(ptr, 4);
   ptr += 4;
 
-  memcpy(ptr, &entry->create_time, 8);
+  memcpy(ptr, &entry->offset, 8);
+  if (!is_little_endian())
+    reverse_bytes(ptr, 8);
+  ptr += 8;
+
+  memcpy(ptr, &entry->meta_time, 8);
   if (!is_little_endian())
     reverse_bytes(ptr, 8);
   ptr += 8;
@@ -47,27 +52,35 @@ void fs_entry_direntry(const direntry *entry, uint8_t *out_bytes) {
   memcpy(ptr, entry->runlist, 724);
 }
 
-void bytes_to_fs_entry(const uint8_t *bytes, direntry *out_entry) {
+void bytes_to_direntry(const uint8_t *bytes, direntry *out_entry) {
   const uint8_t *ptr = bytes;
 
   memcpy(out_entry->magic, ptr, 4);
   ptr += 4;
 
+  ptr += 1;
+
+  memcpy(out_entry->name, ptr, 256);
   ptr += 256;
 
   memcpy(&out_entry->size, ptr, 8);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_entry->size, 8);
-  ptr += 2;
+  ptr += 8;
 
   memcpy(&out_entry->flags, ptr, 4);
   if (!is_little_endian())
     reverse_bytes((uint8_t *)&out_entry->flags, 4);
   ptr += 4;
 
-  memcpy(&out_entry->create_time, ptr, 8);
+  memcpy(&out_entry->offset, ptr, 8);
   if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_entry->create_time, 8);
+    reverse_bytes((uint8_t *)&out_entry->offset, 8);
+  ptr += 8;
+
+  memcpy(&out_entry->meta_time, ptr, 8);
+  if (!is_little_endian())
+    reverse_bytes((uint8_t *)&out_entry->meta_time, 8);
   ptr += 8;
 
   memcpy(&out_entry->modify_time, ptr, 8);
@@ -82,13 +95,13 @@ void bytes_to_fs_entry(const uint8_t *bytes, direntry *out_entry) {
 
   memcpy(&out_entry->uid, ptr, 2);
   if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_entry->open_time, 2);
+    reverse_bytes((uint8_t *)&out_entry->uid, 2);
   ptr += 2;
 
   memcpy(&out_entry->gid, ptr, 2);
   if (!is_little_endian())
-    reverse_bytes((uint8_t *)&out_entry->open_time, 2);
+    reverse_bytes((uint8_t *)&out_entry->gid, 2);
   ptr += 2;
 
-  memcpy(out_entry->runlist, ptr, 724);
+  memcpy(out_entry->runlist, ptr, 715);
 }

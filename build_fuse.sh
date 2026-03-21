@@ -9,8 +9,8 @@ OUTPUT="simplefs"
 BUILD_DIR="build"
 
 CC="gcc"
-CFLAGS="-Wall -Wextra -O2 -g"
-LDFLAGS="-g"
+CFLAGS="-Wall -Wextra -O2 -g `pkg-config fuse3 --cflags --libs` -D_FILE_OFFSET_BITS=64"
+LDFLAGS="-g `pkg-config fuse3 --cflags --libs` -D_FILE_OFFSET_BITS=64"
 
 mkdir -p "$BUILD_DIR"
 
