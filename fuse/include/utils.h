@@ -35,6 +35,7 @@ int parseRunlist(uint8_t *byteRuns, run **runs_out);
 size_t createRunlist(run *runs, int runs_count, uint8_t **byteRuns);
 void bitmap_set_sector(uint64_t sector, uint8_t *bitmap, bool use);
 bool bitmap_get_sector(uint64_t sector, const uint8_t *bitmap);
+void free_runs_in_bitmap(run *runs, int runs_count, uint8_t *bitmap);
 char **split(const char *str, char delim, size_t *count);
 uint64_t find_free_sector_from(uint64_t bitmapOffset, BlockDevice *device,
                                uint64_t bitmapSize, uint64_t startSector);

@@ -220,6 +220,15 @@ bool bitmap_get_sector(uint64_t sector, const uint8_t *bitmap) {
   return (bitmap[byte_index] & mask) != 0;
 }
 
+void free_runs_in_bitmap(run *runs, int runs_count, uint8_t *bitmap) {
+  for (int i = 0; i < runs_count; i++) {
+    for (uint64_t s = runs[i].offset; s < runs[i].offset + runs[i].length;
+         s++) {
+      bitmap_set_sector(s, bitmap, false);
+    }
+  }
+}
+
 char **split(const char *str, char delim, size_t *count) {
   size_t capacity = 10;
   size_t n = 0;

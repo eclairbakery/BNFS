@@ -1,12 +1,5 @@
-#include "include/blockdevice.h"
 #include "include/bnfs.h"
-#include "include/direntry.h"
 #include "include/filesystem.h"
-#include "include/utils.h"
-#include <asm-generic/errno-base.h>
-#include <fuse3/fuse.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 struct simplefs_config {
   const char *disk;
@@ -147,19 +140,45 @@ static int simplefs_open(const char *path, struct fuse_file_info *fi) {
   return -ENOENT;
 }
 
+int simplefs_truncate(const char *path, off_t size, struct fuse_file_info *fi) {
+  // 1. Sprawdź, czy FS jest zamontowany
+  if (!filesystem.mounted)
+    return -EIO;
+
+  int status = fs_truncate(&filesystem, path, size);
+
+  if (status < 0)
+    return -ENOENT;
+
+  return 0; // sukces
+}
+
+int simplefs_unlink(const char *path) {
+  // 1. Sprawdź, czy FS jest zamontowany
+  if (!filesystem.mounted)
+    return -EIO;
+
+  int status = fs_unlink(&filesystem, path);
+
+  if (status < 0)
+    return -ENOENT;
+
+  return 0; // sukces
+}
+
 static const struct fuse_operations simplefs_oper = {
     .getattr = simplefs_getattr,
     .readlink = NULL,
     .mknod = NULL,
     .mkdir = NULL,
-    .unlink = NULL,
+    .unlink = simplefs_unlink,
     .rmdir = NULL,
     .symlink = NULL,
     .rename = NULL,
     .link = NULL,
     .chmod = NULL,
     .chown = NULL,
-    .truncate = NULL,
+    .truncate = simplefs_truncate,
     .open = simplefs_open,
     .read = simplefs_read,
     .write = simplefs_write,
