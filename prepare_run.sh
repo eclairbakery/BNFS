@@ -1,4 +1,4 @@
-sudo ./umount.sh
-./create_img.sh
-./mkfs.sh
-sudo ./run.sh
+sudo bash ./umount.sh
+bash ./create_img.sh
+bash ./mkfs.sh
+sudo bash ./run.sh

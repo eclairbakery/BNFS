@@ -166,6 +166,20 @@ int simplefs_unlink(const char *path) {
   return 0; // sukces
 }
 
+int simplefs_rename(const char *oldpath, const char *newpath,
+                    unsigned int flags) {
+  // 1. Sprawdź, czy FS jest zamontowany
+  if (!filesystem.mounted)
+    return -EIO;
+
+  int status = fs_rename(&filesystem, oldpath, newpath);
+
+  if (status < 0)
+    return -ENOENT;
+
+  return 0; // sukces
+}
+
 static const struct fuse_operations simplefs_oper = {
     .getattr = simplefs_getattr,
     .readlink = NULL,
@@ -174,7 +188,7 @@ static const struct fuse_operations simplefs_oper = {
     .unlink = simplefs_unlink,
     .rmdir = NULL,
     .symlink = NULL,
-    .rename = NULL,
+    .rename = simplefs_rename,
     .link = NULL,
     .chmod = NULL,
     .chown = NULL,

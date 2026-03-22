@@ -39,3 +39,4 @@ int fs_write(SimpleFS *fs, char *path, uint64_t offset, uint64_t size,
              char *buf);
 int fs_truncate(SimpleFS *fs, char *path, uint64_t size);
 int fs_unlink(SimpleFS *fs, char *path);
+int fs_rename(SimpleFS *fs, char *path, char *new_path);

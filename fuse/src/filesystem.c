@@ -1,7 +1,4 @@
 #include "../include/filesystem.h"
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 
 uint8_t *fs_verify(BlockDevice *dev) {
   uint8_t *header = malloc(4096);
@@ -451,6 +448,10 @@ int fs_write(SimpleFS *fs, char *path, uint64_t offset, uint64_t size,
           // Upewnij się że bitmap_block jest w cache'u
           if (!bitmap_cache[bitmap_block]) {
             bitmap_cache[bitmap_block] = malloc(block_size);
+            if (!bitmap_cache[bitmap_block]) {
+              // Nie można alokować pamięci, przestań szukać
+              break;
+            }
             if (block_read(&fs->dev, header.bitmapOffset + bitmap_block,
                            bitmap_cache[bitmap_block]) != 0) {
               free(bitmap_cache[bitmap_block]);
@@ -490,13 +491,34 @@ int fs_write(SimpleFS *fs, char *path, uint64_t offset, uint64_t size,
         uint64_t bit_index = free_sector - data_start;
         uint64_t bitmap_block = bit_index / (block_size * 8);
 
-        if (!bitmap_cache[bitmap_block]) {
-          bitmap_cache[bitmap_block] = malloc(block_size);
-          block_read(&fs->dev, header.bitmapOffset + bitmap_block,
-                     bitmap_cache[bitmap_block]);
+        if (bitmap_block >= header.bitmapSize) {
+          free(lcn_table);
+          free(runs);
+          free(dir_block);
+          goto cleanup;
         }
 
-        bitmap_set_sector(bit_index, bitmap_cache[bitmap_block], true);
+        if (!bitmap_cache[bitmap_block]) {
+          bitmap_cache[bitmap_block] = malloc(block_size);
+          if (!bitmap_cache[bitmap_block]) {
+            free(lcn_table);
+            free(runs);
+            free(dir_block);
+            goto cleanup;
+          }
+          if (block_read(&fs->dev, header.bitmapOffset + bitmap_block,
+                         bitmap_cache[bitmap_block]) != 0) {
+            free(bitmap_cache[bitmap_block]);
+            bitmap_cache[bitmap_block] = NULL;
+            free(lcn_table);
+            free(runs);
+            free(dir_block);
+            goto cleanup;
+          }
+        }
+
+        bitmap_set_sector(bit_index % (block_size * 8),
+                          bitmap_cache[bitmap_block], true);
         bitmap_dirty[bitmap_block] = true;
       }
 
@@ -521,12 +543,35 @@ int fs_write(SimpleFS *fs, char *path, uint64_t offset, uint64_t size,
           // ===== bitmapa =====
           uint64_t bit_index = lcn_sector - data_start;
           uint64_t bitmap_block = bit_index / (block_size * 8);
+          if (bitmap_block >= header.bitmapSize) {
+            free(file_block);
+            free(lcn_table);
+            free(runs);
+            free(dir_block);
+            goto cleanup;
+          }
           if (!bitmap_cache[bitmap_block]) {
             bitmap_cache[bitmap_block] = malloc(block_size);
-            block_read(&fs->dev, header.bitmapOffset + bitmap_block,
-                       bitmap_cache[bitmap_block]);
+            if (!bitmap_cache[bitmap_block]) {
+              free(file_block);
+              free(lcn_table);
+              free(runs);
+              free(dir_block);
+              goto cleanup;
+            }
+            if (block_read(&fs->dev, header.bitmapOffset + bitmap_block,
+                           bitmap_cache[bitmap_block]) != 0) {
+              free(bitmap_cache[bitmap_block]);
+              bitmap_cache[bitmap_block] = NULL;
+              free(file_block);
+              free(lcn_table);
+              free(runs);
+              free(dir_block);
+              goto cleanup;
+            }
           }
-          bitmap_set_sector(bit_index, bitmap_cache[bitmap_block], true);
+          bitmap_set_sector(bit_index % (block_size * 8),
+                            bitmap_cache[bitmap_block], true);
           bitmap_dirty[bitmap_block] = true;
 
           block_write(&fs->dev, lcn_sector, file_block);
@@ -559,12 +604,35 @@ int fs_write(SimpleFS *fs, char *path, uint64_t offset, uint64_t size,
         // ===== bitmapa =====
         uint64_t bit_index = lcn_sector - data_start;
         uint64_t bitmap_block = bit_index / (block_size * 8);
+        if (bitmap_block >= header.bitmapSize) {
+          free(file_block);
+          free(lcn_table);
+          free(runs);
+          free(dir_block);
+          goto cleanup;
+        }
         if (!bitmap_cache[bitmap_block]) {
           bitmap_cache[bitmap_block] = malloc(block_size);
-          block_read(&fs->dev, header.bitmapOffset + bitmap_block,
-                     bitmap_cache[bitmap_block]);
+          if (!bitmap_cache[bitmap_block]) {
+            free(file_block);
+            free(lcn_table);
+            free(runs);
+            free(dir_block);
+            goto cleanup;
+          }
+          if (block_read(&fs->dev, header.bitmapOffset + bitmap_block,
+                         bitmap_cache[bitmap_block]) != 0) {
+            free(bitmap_cache[bitmap_block]);
+            bitmap_cache[bitmap_block] = NULL;
+            free(file_block);
+            free(lcn_table);
+            free(runs);
+            free(dir_block);
+            goto cleanup;
+          }
         }
-        bitmap_set_sector(bit_index, bitmap_cache[bitmap_block], true);
+        bitmap_set_sector(bit_index % (block_size * 8),
+                          bitmap_cache[bitmap_block], true);
         bitmap_dirty[bitmap_block] = true;
 
         block_write(&fs->dev, lcn_sector, file_block);
@@ -748,6 +816,19 @@ int fs_truncate(SimpleFS *fs, char *path, uint64_t size) {
 
                 if (!bitmap_cache[bitmap_block]) {
                   bitmap_cache[bitmap_block] = malloc(block_size);
+                  if (!bitmap_cache[bitmap_block]) {
+                    // cleanup
+                    free(new_runs);
+                    free(runlist);
+                    for (size_t b = 0; b < header.bitmapSize; b++) {
+                      if (bitmap_cache[b])
+                        free(bitmap_cache[b]);
+                    }
+                    free(bitmap_cache);
+                    free(bitmap_dirty);
+                    free(buffer);
+                    return -4;
+                  }
                   if (block_read(&fs->dev, header.bitmapOffset + bitmap_block,
                                  bitmap_cache[bitmap_block]) != 0) {
                     free(bitmap_cache[bitmap_block]);
@@ -820,6 +901,18 @@ int fs_truncate(SimpleFS *fs, char *path, uint64_t size) {
 
               if (!bitmap_cache[bitmap_block]) {
                 bitmap_cache[bitmap_block] = malloc(block_size);
+                if (!bitmap_cache[bitmap_block]) {
+                  free(new_runs);
+                  free(runlist);
+                  for (size_t b = 0; b < header.bitmapSize; b++) {
+                    if (bitmap_cache[b])
+                      free(bitmap_cache[b]);
+                  }
+                  free(bitmap_cache);
+                  free(bitmap_dirty);
+                  free(buffer);
+                  return -4;
+                }
                 if (block_read(&fs->dev, header.bitmapOffset + bitmap_block,
                                bitmap_cache[bitmap_block]) != 0) {
                   free(bitmap_cache[bitmap_block]);
@@ -906,6 +999,61 @@ int fs_unlink(SimpleFS *fs, char *path) {
 
         if (strcmp(entry.name, name) == 0) {
           memset(ptr, 0, 1024);
+          block_write(&fs->dev, header.rootDirOffset + i, buffer);
+          free(buffer);
+          goto finish;
+        }
+      }
+      ptr += 1024;
+    }
+
+    free(buffer);
+  }
+
+  return -1;
+
+finish:
+  return 0;
+}
+
+int fs_rename(SimpleFS *fs, char *path, char *new_path) {
+  if (!fs || !path)
+    return -1;
+
+  fs_header header = fs->header;
+  uint64_t block_size = fs->dev.block_size;
+
+  // usuń leading '/'
+  char *name = path;
+  if (name[0] == '/')
+    name++;
+  char *new_name = new_path;
+  if (new_name[0] == '/')
+    new_name++;
+
+  fs_truncate(fs, name, 0);
+
+  for (size_t i = 0; i < 256; i++) {
+    uint8_t *buffer = malloc(block_size);
+    if (!buffer)
+      return -4;
+
+    if (block_read(&fs->dev, header.rootDirOffset + i, buffer) != 0) {
+      free(buffer);
+      continue;
+    }
+
+    uint8_t *ptr = buffer;
+
+    for (size_t j = 0; j < block_size / 1024; j++) {
+      direntry entry;
+      bytes_to_direntry(ptr, &entry);
+
+      if (memcmp(entry.magic, "ENTR", 4) == 0) {
+
+        if (strcmp(entry.name, name) == 0) {
+          strncpy(entry.name, new_name, 255);
+          direntry_to_bytes(&entry, ptr);
           block_write(&fs->dev, header.rootDirOffset + i, buffer);
           free(buffer);
           goto finish;
