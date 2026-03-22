@@ -4,17 +4,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
-typedef enum
-{
-  DEV_RAM,
-  DEV_FILE
-} DeviceType;
+typedef enum { DEV_RAM, DEV_FILE } DeviceType;
 
-typedef struct
-{
+typedef struct {
 
   const char *name;
 
@@ -25,15 +20,12 @@ typedef struct
 
   DeviceType type;
 
-  union
-  {
-    struct
-    {
+  union {
+    struct {
       uint8_t *data; // malloc pointer
     } ram;
 
-    struct
-    {
+    struct {
       FILE *fp; // fopen handle
     } file;
   };

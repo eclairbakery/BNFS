@@ -1,7 +1,7 @@
 #include "include/blockdevice.h"
+#include "include/bnfs.h"
 #include "include/direntry.h"
 #include "include/filesystem.h"
-#include "include/simplefs.h"
 #include "include/utils.h"
 #include <asm-generic/errno-base.h>
 #include <fuse3/fuse.h>
@@ -22,9 +22,6 @@ simplefs_getattr(const char *path, // ścieżka pliku (np. "/hello.txt")
   memset(st, 0, sizeof(struct stat));
 
   if (strcmp(path, "/") == 0) {
-    st->st_gid = 1000;
-    st->st_uid = 1000;
-
     st->st_mode = S_IFDIR | 0755;
     st->st_nlink = 2;
     return 0;
@@ -94,18 +91,23 @@ static int simplefs_read(const char *path, char *buf, size_t size, off_t offset,
   }
 }
 
-static int simplefs_write(
-    const char *path,
-    const char *buf, // dane do zapisania
-    size_t size,     // ile bajtów
-    off_t offset,    // gdzie w pliku
-    struct fuse_file_info *fi)
-{
-    const char *filename = path + 1;
+static int simplefs_write(const char *path,
+                          const char *buf, // dane do zapisania
+                          size_t size,     // ile bajtów
+                          off_t offset,    // gdzie w pliku
+                          struct fuse_file_info *fi) {
 
-    
+  printf("kernel size: %d\n", size);
+  printf("kernel offset: %d\n", offset);
 
-    return -ENOENT;
+  uint64_t write_size = fs_write(&filesystem, path, offset, size, buf);
+  printf("size: %d\n", write_size);
+
+  if (write_size >= 0) {
+    return write_size;
+  }
+
+  return -ENOENT;
 }
 
 static int simplefs_create(const char *path,
@@ -136,7 +138,7 @@ static int simplefs_open(const char *path, struct fuse_file_info *fi) {
   for (size_t i = 0; i < entries_count; i++) {
     direntry entry = entries[i];
     if (strcmp(filename, entry.name) == 0) {
-      fi->fh = (uintptr_t)i;
+      // fi->fh = (uintptr_t)i;
 
       return 0;
     }
@@ -160,7 +162,7 @@ static const struct fuse_operations simplefs_oper = {
     .truncate = NULL,
     .open = simplefs_open,
     .read = simplefs_read,
-    .write = NULL,
+    .write = simplefs_write,
     .statfs = NULL,
     .flush = NULL,
     .release = NULL,

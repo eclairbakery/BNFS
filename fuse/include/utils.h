@@ -1,5 +1,6 @@
 #pragma once
 
+#include "blockdevice.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/fs.h>
@@ -12,6 +13,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#define BLOCK_SIZE 4096 // dopasuj do swojego FS
 
 typedef struct {
   uint64_t block_size;
@@ -27,7 +30,13 @@ int get_block_info(const char *path, block_info_t *info);
 bool is_little_endian();
 void reverse_bytes(uint8_t *data, size_t size);
 uint8_t minBytesForNumber(uint64_t value);
+static uint64_t readLE(const uint8_t *data, uint8_t size);
+int parseRunlist(uint8_t *byteRuns, run **runs_out);
 size_t createRunlist(run *runs, int runs_count, uint8_t **byteRuns);
 void bitmap_set_sector(uint64_t sector, uint8_t *bitmap, bool use);
 bool bitmap_get_sector(uint64_t sector, const uint8_t *bitmap);
 char **split(const char *str, char delim, size_t *count);
+uint64_t find_free_sector_from(uint64_t bitmapOffset, BlockDevice *device,
+                               uint64_t bitmapSize, uint64_t startSector);
+uint64_t find_free_sector(uint64_t bitmapOffset, BlockDevice *device,
+                          uint64_t bitmapSize);

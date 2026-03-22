@@ -14,16 +14,16 @@ typedef struct {
   uint64_t rootDirOffset;     // Offset of the root directory in blocks
   uint32_t maxFilenameLength; // Maximum length of a filename
   uint32_t flags;             // np. dirty, readonly, journaling
-  uint64_t inodeCount;        
-  uint64_t freeInodeCount;    
-  uint64_t inodeTableOffset;  
-  uint64_t inodeTableSize;    
-  uint64_t createdTime;       
-  uint64_t lastMountTime;     
-  uint32_t mountCount;        
-  uint32_t maxPathLength;     
-  uint8_t reserved[3976];     
-  uint32_t sbChecksum;        // Superblock CRC32
+  uint64_t inodeCount;
+  uint64_t freeInodeCount;
+  uint64_t inodeTableOffset;
+  uint64_t inodeTableSize;
+  uint64_t createdTime;
+  uint64_t lastMountTime;
+  uint32_t mountCount;
+  uint32_t maxPathLength;
+  uint8_t reserved[3976];
+  uint32_t sbChecksum; // Superblock CRC32
 } fs_header;
 #pragma pack(pop)
 
